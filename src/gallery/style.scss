@@ -1,3 +1,47 @@
 .wp-block-ravera-gallery {
+	--ravera-cols: 3;
+	--ravera-gap: 12px;
 
+	.ravera-gallery.is-masonry {
+		column-count: var(--ravera-cols);
+		column-gap: var(--ravera-gap);
+	}
+
+	.ravera-gallery.is-masonry .ravera-gallery__item {
+		break-inside: avoid;
+		margin: 0 0 var(--ravera-gap);
+	}
+
+	.ravera-gallery.is-masonry img {
+		width: 100%;
+		height: auto;
+		display: block;
+	}
+
+	.ravera-gallery.is-grid {
+		display: grid;
+		grid-template-columns: repeat(var(--ravera-cols), minmax(0, 1fr));
+		gap: var(--ravera-gap);
+	}
+
+	.ravera-gallery.is-grid .ravera-gallery__item {
+		position: relative;
+		aspect-ratio: 1 / 1;
+		overflow: hidden;
+		margin: 0;
+	}
+
+	.ravera-gallery.is-grid .ravera-gallery__item img {
+		width: 100%;
+		height: 100%;
+		display: block;
+		object-fit: cover;
+	}
+
+	.ravera-gallery__actions {
+		display: flex;
+		justify-content: center;
+		width: 100%;
+		margin-top: 24px;
+	}
 }

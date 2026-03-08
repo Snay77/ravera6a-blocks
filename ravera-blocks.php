@@ -14,17 +14,72 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+	exit;
 }
+
 /**
- * Registers the block(s) metadata from the `blocks-manifest.php` and registers the block type(s)
- * based on the registered block metadata. Behind the scenes, it registers also all assets so they can be enqueued
- * through the block editor in the corresponding context.
- *
- * @see https://make.wordpress.org/core/2025/03/13/more-efficient-block-type-registration-in-6-8/
- * @see https://make.wordpress.org/core/2024/10/17/new-block-type-registration-apis-to-improve-performance-in-wordpress-6-7/
+ * Register blocks from the metadata collection (WP 6.8+).
  */
 function create_block_ravera_blocks_block_init() {
-	wp_register_block_types_from_metadata_collection( __DIR__ . '/build', __DIR__ . '/build/blocks-manifest.php' );
+	wp_register_block_types_from_metadata_collection(
+		__DIR__ . '/build',
+		__DIR__ . '/build/blocks-manifest.php'
+	);
 }
 add_action( 'init', 'create_block_ravera_blocks_block_init' );
+
+/**
+ * REST endpoint for progressive "load more" gallery.
+ *
+ * POST /wp-json/ravera/v1/gallery
+ * Body: { ids: number[], page: number, perPage: number, size: string }
+ */
+add_action( 'rest_api_init', function () {
+	register_rest_route( 'ravera/v1', '/gallery', [
+		'methods'             => 'POST',
+		'permission_callback' => '__return_true',
+		'callback'            => function ( WP_REST_Request $request ) {
+
+			$params = $request->get_json_params();
+			if ( ! is_array( $params ) ) {
+				$params = [];
+			}
+
+			$ids      = isset( $params['ids'] ) && is_array( $params['ids'] ) ? array_values( array_filter( array_map( 'intval', $params['ids'] ) ) ) : [];
+			$page     = isset( $params['page'] ) ? max( 1, (int) $params['page'] ) : 1;
+			$per_page = isset( $params['perPage'] ) ? max( 1, (int) $params['perPage'] ) : 9;
+			$size     = isset( $params['size'] ) ? sanitize_key( (string) $params['size'] ) : 'large';
+
+			if ( empty( $ids ) ) {
+				return new WP_REST_Response(
+					[
+						'html'    => '',
+						'hasMore' => false,
+					],
+					200
+				);
+			}
+
+			$offset = ( $page - 1 ) * $per_page;
+			$batch  = array_slice( $ids, $offset, $per_page );
+
+			ob_start();
+			foreach ( $batch as $id ) {
+				echo '<div class="ravera-gallery__item">';
+				echo wp_get_attachment_image( $id, $size );
+				echo '</div>';
+			}
+			$html = ob_get_clean();
+
+			$has_more = ( $offset + $per_page ) < count( $ids );
+
+			return new WP_REST_Response(
+				[
+					'html'    => $html,
+					'hasMore' => $has_more,
+				],
+				200
+			);
+		},
+	] );
+} );
