@@ -44,10 +44,10 @@ return array(
 		'supports' => array(
 			'html' => false
 		),
-		'editorScript' => 'file:./index.js',
-		'editorStyle' => 'file:./index.css',
-		'style' => 'file:./style-index.css',
+		'editorScript' => 'ravera-gallery-editor',
+		'editorStyle' => 'ravera-gallery-editor',
+		'style' => 'ravera-gallery-front',
 		'render' => 'file:./render.php',
-		'viewScript' => 'file:./view.js'
+		'viewScript' => 'ravera-gallery-view'
 	)
 );
