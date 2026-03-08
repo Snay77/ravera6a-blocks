@@ -9,67 +9,37 @@
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       ravera-blocks
+ *
+ * @package CreateBlock
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function ravera_blocks_init() {
-	$dir = __DIR__ . '/build/gallery';
-
-	wp_register_script(
-		'ravera-gallery-editor',
-		plugins_url( 'build/gallery/index.js', __FILE__ ),
-		require $dir . '/index.asset.php',
-		filemtime( $dir . '/index.js' )
+/**
+ * Register blocks from the metadata collection (WP 6.8+).
+ */
+function create_block_ravera_blocks_block_init() {
+	wp_register_block_types_from_metadata_collection(
+		__DIR__ . '/build',
+		__DIR__ . '/build/blocks-manifest.php'
 	);
-
-	if ( file_exists( $dir . '/index.css' ) ) {
-		wp_register_style(
-			'ravera-gallery-editor',
-			plugins_url( 'build/gallery/index.css', __FILE__ ),
-			[],
-			filemtime( $dir . '/index.css' )
-		);
-	}
-
-	if ( file_exists( $dir . '/style-index.css' ) ) {
-		wp_register_style(
-			'ravera-gallery-front',
-			plugins_url( 'build/gallery/style-index.css', __FILE__ ),
-			[],
-			filemtime( $dir . '/style-index.css' )
-		);
-	}
-
-	if ( file_exists( $dir . '/view.js' ) ) {
-		wp_register_script(
-			'ravera-gallery-view',
-			plugins_url( 'build/gallery/view.js', __FILE__ ),
-			[ 'wp-api-fetch' ],
-			filemtime( $dir . '/view.js' ),
-			true
-		);
-	}
-
-	register_block_type( $dir . '/block.json', [
-		'editor_script' => 'ravera-gallery-editor',
-		'editor_style'  => 'ravera-gallery-editor',
-		'style'         => 'ravera-gallery-front',
-		'view_script'   => 'ravera-gallery-view',
-	] );
 }
-add_action( 'init', 'ravera_blocks_init' );
+add_action( 'init', 'create_block_ravera_blocks_block_init' );
 
 /**
  * REST endpoint for progressive "load more" gallery.
+ *
+ * POST /wp-json/ravera/v1/gallery
+ * Body: { ids: number[], page: number, perPage: number, size: string }
  */
 add_action( 'rest_api_init', function () {
 	register_rest_route( 'ravera/v1', '/gallery', [
 		'methods'             => 'POST',
 		'permission_callback' => '__return_true',
 		'callback'            => function ( WP_REST_Request $request ) {
+
 			$params = $request->get_json_params();
 			if ( ! is_array( $params ) ) {
 				$params = [];
