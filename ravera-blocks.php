@@ -3,30 +3,22 @@
  * Plugin Name:       Ravera Blocks
  * Description:       A collection of blocks for the Ravera theme.
  * Version:           1.0.0
- * Requires at least: 6.8
+ * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Ethan
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       ravera-blocks
- *
- * @package CreateBlock
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Register blocks from the metadata collection (WP 6.8+).
- */
-function create_block_ravera_blocks_block_init() {
-	wp_register_block_types_from_metadata_collection(
-		__DIR__ . '/build',
-		__DIR__ . '/build/blocks-manifest.php'
-	);
+function ravera_blocks_init() {
+	register_block_type( __DIR__ . '/build/gallery' );
 }
-add_action( 'init', 'create_block_ravera_blocks_block_init' );
+add_action( 'init', 'ravera_blocks_init' );
 
 /**
  * REST endpoint for progressive "load more" gallery.
