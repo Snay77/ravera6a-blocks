@@ -16,7 +16,7 @@ import {
 import './editor.scss';
 
 export default function Edit({ attributes, setAttributes }) {
-	const { ids, perPage, columns, gap, imageSize, isMasonry } = attributes;
+	const { ids, perPage, columns, gap, imageSize, isMasonry, showLoadMore } = attributes;
 
 	const onSelectImages = (media) => {
 		const mediaArray = Array.isArray(media) ? media : media ? [media] : [];
@@ -46,13 +46,26 @@ export default function Edit({ attributes, setAttributes }) {
 						onChange={(value) => setAttributes({ isMasonry: value })}
 					/>
 
-					<RangeControl
-						label={__('Images par chargement', 'ravera-blocks')}
-						value={perPage}
-						onChange={(v) => setAttributes({ perPage: v })}
-						min={3}
-						max={30}
+					<ToggleControl
+						label={__('Activer le bouton “Voir plus”', 'ravera-blocks')}
+						help={
+							showLoadMore
+								? __('Les images se chargent progressivement.', 'ravera-blocks')
+								: __('Toutes les images seront chargées dès le début.', 'ravera-blocks')
+						}
+						checked={showLoadMore}
+						onChange={(value) => setAttributes({ showLoadMore: value })}
 					/>
+
+					{showLoadMore && (
+						<RangeControl
+							label={__('Images par chargement', 'ravera-blocks')}
+							value={perPage}
+							onChange={(v) => setAttributes({ perPage: v })}
+							min={3}
+							max={30}
+						/>
+					)}
 
 					<RangeControl
 						label={__('Colonnes', 'ravera-blocks')}
@@ -115,9 +128,9 @@ export default function Edit({ attributes, setAttributes }) {
 
 				{ids?.length ? (
 					<p className="ravera-gallery__hint">
-						{isMasonry
-							? __('Aperçu (maçonnerie). Sur le site : chargement progressif.', 'ravera-blocks')
-							: __('Aperçu (grille carrée). Sur le site : chargement progressif.', 'ravera-blocks')}
+						{showLoadMore
+							? __('Sur le site : chargement progressif avec bouton “Voir plus”.', 'ravera-blocks')
+							: __('Sur le site : toutes les images seront chargées dès le début.', 'ravera-blocks')}
 					</p>
 				) : (
 					<p className="ravera-gallery__hint">

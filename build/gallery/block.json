@@ -19,6 +19,10 @@
       "type": "number",
       "default": 9
     },
+    "showLoadMore": {
+      "type": "boolean",
+      "default": true
+    },
     "columns": {
       "type": "number",
       "default": 3

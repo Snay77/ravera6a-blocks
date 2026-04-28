@@ -24,6 +24,10 @@ return array(
 				'type' => 'number',
 				'default' => 9
 			),
+			'showLoadMore' => array(
+				'type' => 'boolean',
+				'default' => true
+			),
 			'columns' => array(
 				'type' => 'number',
 				'default' => 3
